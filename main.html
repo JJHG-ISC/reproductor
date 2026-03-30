@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✦ Nay ✦</title>
+    <style>
+        :root {
+            --bg-main: #080412;
+            --bg-panel: #100720;
+            --border: #3d1f6e;
+            --text-muted: #5a2fa0;
+            --text-light: #c9a8f0;
+            --accent1: #7a3ebb;
+            --accent2: #e91e63;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            display: flex;
+            gap: 16px;
+            max-width: 1050px;
+            width: 100%;
+            height: 90vh;
+            max-height: 700px;
+        }
+
+        .panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .left-panel { flex: 5; align-items: center; gap: 12px; }
+        .right-panel { flex: 7; }
+
+        .header {
+            font-size: 14px; font-weight: bold; color: #9c27b0;
+            letter-spacing: 4px; text-align: center; margin-bottom: 10px;
+        }
+
+        .album-art {
+            width: 240px; height: 240px;
+            border-radius: 10px;
+            object-fit: cover; /* Esto hace el recorte perfecto automáticamente */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .info-frame { width: 100%; text-align: left; }
+        .key-text { font-size: 9px; color: var(--text-muted); letter-spacing: 2px; }
+        .val-text { font-size: 14px; font-weight: bold; color: #fff; margin-bottom: 4px; }
+        .val-sub { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
+        .status-text { font-size: 11px; color: var(--text-muted); }
+
+        /* Visualizador Simulado */
+        .visualizer {
+            display: flex; align-items: flex-end; justify-content: center;
+            height: 40px; gap: 3px; width: 100%; margin: 10px 0;
+        }
+        .bar {
+            width: 7px; background: linear-gradient(to top, var(--accent1), var(--accent2));
+            border-radius: 2px; transition: height 0.1s ease;
+        }
+
+        /* Progreso */
+        .progress-container {
+            width: 100%; height: 6px; background-color: #1e0d33;
+            border-radius: 3px; cursor: pointer; position: relative; margin-top: 10px;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; border-radius: 3px;
+            background: linear-gradient(to right, var(--accent1), var(--accent2));
+            pointer-events: none;
+        }
+        .time-row {
+            display: flex; justify-content: space-between; width: 100%;
+            font-size: 11px; color: var(--text-muted); margin-top: 5px;
+        }
+
+        /* Controles */
+        .controls {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin-top: 15px; width: 100%;
+        }
+        .btn {
+            background: #130825; border: 1px solid var(--accent1);
+            color: #c9a8f0; border-radius: 50%; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { background: #1e0d33; border-color: #c9a8f0; color: #fff; }
+        .btn-small { width: 40px; height: 40px; font-size: 14px; }
+        .btn-large {
+            width: 52px; height: 52px; font-size: 20px; color: #fff; border: none;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        }
+        .btn-large:hover { background: linear-gradient(135deg, #ab47bc, var(--accent2)); }
+
+        /* Letras */
+        .lyrics-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
+        }
+        .lyrics-title { font-size: 13px; font-weight: bold; color: #9c27b0; letter-spacing: 2px; }
+        .lrc-status { font-size: 11px; color: var(--accent2); }
+        
+        .lyrics-area {
+            flex: 1; overflow-y: auto; scroll-behavior: smooth;
+            padding-right: 10px; position: relative;
+        }
+        .lyrics-area::-webkit-scrollbar { width: 4px; }
+        .lyrics-area::-webkit-scrollbar-track { background: #0d0618; border-radius: 2px; }
+        .lyrics-area::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }
+
+        .lyric-line {
+            font-size: 16px; color: #3d2460; padding: 6px 10px;
+            border-radius: 6px; margin-bottom: 8px; transition: all 0.3s ease;
+        }
+        .lyric-near { font-size: 17px; color: #9c6fd0; }
+        .lyric-active {
+            font-size: 19px; color: #ffffff; background-color: #1e0840;
+            font-weight: bold; border-left: 3px solid var(--accent2); padding: 8px 14px;
+        }
+
+        /* Responsividad para celulares */
+        @media (max-width: 768px) {
+            .container { flex-direction: column; height: auto; max-height: none; }
+            .left-panel { flex: none; }
+            .right-panel { flex: none; height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="panel left-panel">
+            <div class="header">✦ Te amo ✦</div>
+            <img src="NSQK.jpg" alt="Album Art" class="album-art" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+            
+            <div class="info-frame">
+                <div class="key-text">TRACK</div>
+                <div class="val-text">NSQK - Sur Interludio</div>
+                <div class="key-text">ARTIST</div>
+                <div class="val-sub">NSQK</div>
+                <div class="status-text" id="status-label">■ stopped</div>
+            </div>
+
+            <div class="visualizer" id="visualizer">
+                </div>
+
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="time-row">
+                <span id="time-current">0:00</span>
+                <span id="time-total">0:00</span>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-small" id="btn-prev">⏪</button>
+                <button class="btn btn-large" id="btn-play">▶</button>
+                <button class="btn btn-small" id="btn-next">⏩</button>
+            </div>
+            
+            <audio id="audio-player" src="sur.mp3"></audio>
+        </div>
+
+        <div class="panel right-panel">
+            <div class="lyrics-header">
+                <div class="lyrics-title">> lyrics</div>
+                <div class="lrc-status">online ■ sync ✓</div>
+            </div>
+            <div class="lyrics-area" id="lyrics-area">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const LRC_DATA = `
+[00:13.59] Ten mi nombre, ten mi aliento
+[00:19.84] Que, si no estás no sirven
+[00:26.24] Ten mis hombros, ten mis dientes
+[00:33.50] Que, tú no entiendes, no
+[00:38.63] Porque todo vuelve a ti
+[00:45.74] Todo vuelve a ti
+[00:52.21] Todo vuelve a ti
+[00:55.19] Como aves al sur en invierno
+[00:58.51] Como el sol y la luna en el cielo
+[01:01.75] Los fantasmas me siguen diciendo
+[01:07.99] (Ten mi, ten mi nombre, nombre)
+[01:11.58] (Ten-ten-ten mi alien-aliento-to)
+[01:14.96] (Y no estás-tás-tás)
+[01:18.44] (y no estás-tás-tás, no)
+[01:22.10] (Ten mi hom-hombro)
+[01:25.62] (Ten, ten dientes)
+[01:28.92] (Tú no entiendes-tiendes-tiendes)
+[01:32.49] (No, no, no, -tiendes-es-es)
+        `;
+
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('btn-play');
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const timeCurrent = document.getElementById('time-current');
+        const timeTotal = document.getElementById('time-total');
+        const statusLabel = document.getElementById('status-label');
+        const lyricsArea = document.getElementById('lyrics-area');
+        const visualizer = document.getElementById('visualizer');
+
+        let lyrics = [];
+        let isPlaying = false;
+        let visInterval;
+
+        // Formatear tiempo
+        const formatTime = (time) => {
+            if (isNaN(time)) return "0:00";
+            const min = Math.floor(time / 60);
+            const sec = Math.floor(time % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        };
+
+        // Cargar metadatos
+        audio.addEventListener('loadedmetadata', () => {
+            timeTotal.textContent = formatTime(audio.duration);
+        });
+
+        // Parsear LRC
+        const parseLRC = () => {
+            const lines = LRC_DATA.trim().split('\n');
+            const regex = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
+            
+            lines.forEach(line => {
+                const match = regex.exec(line);
+                if (match) {
+                    const m = parseInt(match[1]);
+                    const s = parseInt(match[2]);
+                    const ms = parseInt(match[3].padEnd(3, '0'));
+                    const time = (m * 60) + s + (ms / 1000);
+                    const text = match[4].trim();
+                    if(text) lyrics.push({ time, text });
+                }
+            });
+            
+            lyrics.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = 'lyric-line';
+                div.id = `line-${index}`;
+                div.textContent = line.text;
+                lyricsArea.appendChild(div);
+            });
+        };
+
+        // Generar barras visualizador
+        for(let i=0; i<28; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = '4px';
+            visualizer.appendChild(bar);
+        }
+
+        const updateVisualizer = () => {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                if (isPlaying) {
+                    const height = Math.random() * 35 + 5;
+                    bar.style.height = `${height}px`;
+                } else {
+                    bar.style.height = '4px';
+                }
+            });
+        };
+
+        // Play / Pause
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+                playBtn.textContent = '⏸';
+                statusLabel.innerHTML = '<span style="color: #e91e63;">▶ playing</span>';
+                visInterval = setInterval(updateVisualizer, 100);
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                statusLabel.innerHTML = '<span style="color: var(--accent1);">⏸ paused</span>';
+                clearInterval(visInterval);
+                updateVisualizer();
+            }
+        });
+
+        // Controles de tiempo
+        prevBtn.addEventListener('click', () => { audio.currentTime -= 10; });
+        nextBtn.addEventListener('click', () => { audio.currentTime += 10; });
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        });
+
+        // Actualizar UI
+        audio.addEventListener('timeupdate', () => {
+            // Progreso
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            timeCurrent.textContent = formatTime(audio.currentTime);
+
+            // Letras
+            let activeIndex = -1;
+            for (let i = 0; i < lyrics.length; i++) {
+                if (audio.currentTime >= lyrics[i].time) {
+                    activeIndex = i;
+                } else { break; }
+            }
+
+            if (activeIndex !== -1) {
+                document.querySelectorAll('.lyric-line').forEach((el, idx) => {
+                    el.className = 'lyric-line';
+                    if (idx === activeIndex) {
+                        el.classList.add('lyric-active');
+                        // Auto-scroll centrado
+                        const scrollPos = el.offsetTop - (lyricsArea.clientHeight / 2) + (el.clientHeight / 2);
+                        lyricsArea.scrollTop = scrollPos;
+                    } else if (idx === activeIndex - 1 || idx === activeIndex + 1) {
+                        el.classList.add('lyric-near');
+                    }
+                });
+            }
+        });
+
+        // Reset al terminar
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            statusLabel.textContent = '■ stopped';
+            progressBar.style.width = '0%';
+            clearInterval(visInterval);
+            updateVisualizer();
+            lyricsArea.scrollTop = 0;
+            document.querySelectorAll('.lyric-line').forEach(el => el.className = 'lyric-line');
+        });
+
+        // Iniciar
+        parseLRC();
+    </script>
+</body>
+</html>
